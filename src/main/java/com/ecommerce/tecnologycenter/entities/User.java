@@ -18,6 +18,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    //Faz com que o campo E-mail na hora de ser convertido para o BANCO RELACIONAl esta coluna sera unica, o banco não
+    // ira permitir repetição
+    @Column(unique = true)
     private String email;
     private String phone;
     private LocalDate birthDate;
