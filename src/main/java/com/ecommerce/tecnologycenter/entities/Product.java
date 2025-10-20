@@ -1,8 +1,10 @@
 package com.ecommerce.tecnologycenter.entities;
 
 import jakarta.persistence.*;
+import jdk.dynalink.linker.LinkerServices;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -30,6 +32,11 @@ public class Product {
             //No INVERSEJOINCOLUM é passada o nome da coluna da outra tabela
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> categories = new HashSet<>();
+
+    // Criado pra buscar os ITENS a partir do produto
+    @OneToMany(mappedBy = "id.product")
+    private Set<OrderItem> items = new HashSet<>();
+
 
     public Product(){
     }
@@ -84,6 +91,17 @@ public class Product {
 
     public Set<Category> getCategories() {
         return categories;
+    }
+
+    public Set<OrderItem> getItems() {
+        return items;
+    }
+
+    public List<Order> getOrders(){
+        // Convertendo o ITEMS que é do tipo ORDERITEMS pra ORDER
+        // Pegando apenas os ORDERS e retornando esse conjunto em uma lista do tipo list
+        // Como a lista inicial é de items, essa função pega apenas os Pedidos que estão dentro do ORDERITEM
+        return items.stream().map(x -> x.getOrder()).toList();
     }
 
 }

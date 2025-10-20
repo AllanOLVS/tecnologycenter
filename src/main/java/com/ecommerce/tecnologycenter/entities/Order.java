@@ -5,6 +5,9 @@ import com.ecommerce.tecnologycenter.entities.enums.OrderStatus;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_order")
@@ -25,6 +28,10 @@ public class Order {
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
+
+    // Criado pra poder buscar os ITENS a partir do PEDIDO
+    @OneToMany(mappedBy = "id.order")
+    private Set<OrderItem> items = new HashSet<>();
 
     public Order(){
     }
@@ -77,5 +84,14 @@ public class Order {
         this.payment = payment;
     }
 
+    public Set<OrderItem> getItems() {
+        return items;
+    }
+
+    public List<Product> getProducts(){
+        //ITEMS é do tipo ORDERITEM e aqui estou convertendo para PRODUCT
+        // Para cada X que é ORDERITEM, eu transformo ele em PRODUCT
+        return items.stream().map(x -> x.getProduct()).toList();
+    }
 
 }
