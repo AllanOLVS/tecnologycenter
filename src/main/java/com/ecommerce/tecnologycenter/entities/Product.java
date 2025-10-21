@@ -19,7 +19,7 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String description;
     private Double price;
-    private String imgUri;
+    private String imgUrl;
 
     //Indica que é uma ligação de MUITOS PRA MUITOS
     @ManyToMany
@@ -41,12 +41,12 @@ public class Product {
     public Product(){
     }
 
-    public Product(Long id, String name, String description, Double price, String imgUri) {
+    public Product(Long id, String name, String description, Double price, String imgUrl) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
-        this.imgUri = imgUri;
+        this.imgUrl = imgUrl;
     }
 
     public Long getId() {
@@ -82,11 +82,11 @@ public class Product {
     }
 
     public String getImgUri() {
-        return imgUri;
+        return imgUrl;
     }
 
     public void setImgUri(String imgUri) {
-        this.imgUri = imgUri;
+        this.imgUrl = imgUri;
     }
 
     public Set<Category> getCategories() {
