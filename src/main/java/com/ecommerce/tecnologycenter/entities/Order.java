@@ -1,6 +1,5 @@
 package com.ecommerce.tecnologycenter.entities;
 
-import ch.qos.logback.core.net.server.Client;
 import com.ecommerce.tecnologycenter.entities.enums.OrderStatus;
 import jakarta.persistence.*;
 
