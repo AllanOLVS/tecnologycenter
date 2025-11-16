@@ -9,8 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 public class ProductService {
 
@@ -50,21 +48,42 @@ public class ProductService {
         return results.map(x -> new ProductDTO(x));
     }
 
-    // Como vai inserir algo no banco, não é operação somente de leitura, ai é necessario tirar o READ-ONLY
-    @Transactional
-    public ProductDTO insert(ProductDTO dto){
-
-        //Instanciamos o objeto e passamos os dados vindos da requisição pro objeto
-        Product entity = new Product();
+    // Metodo que Copia os dados do DTO pra ENTIDADE
+    private void copyDtoToEntity(Product entity, ProductDTO dto){
         entity.setName(dto.getName());
         entity.setDescription(dto.getDescription());
         entity.setPrice(dto.getPrice());
         entity.setImgUri(dto.getImgUrl());
+    }
+
+    // Como vai inserir algo no banco, não é operação somente de leitura, ai é necessario tirar o READ-ONLY
+    @Transactional
+    public ProductDTO insert(ProductDTO dto){
+        //Instanciamos o objeto e passamos os dados vindos da requisição pro objeto
+        Product entity = new Product();
+        // Atualizamos chamando o metodo que copia dos dados do DTO pra ENTIDADE
+        copyDtoToEntity(entity, dto);
 
         //Salvando no banco
         entity = repository.save(entity);
 
         //Reconverto pra DTO pra poder retornar no metodo
+        return new ProductDTO(entity);
+    }
+
+    @Transactional
+    public ProductDTO update(Long id, ProductDTO dto){
+        // Objeto esta monitorado pela JPA
+        // Instanciando um produto com a referencia do ID
+        Product entity = repository.getReferenceById(id);
+        // Pegamos, pela ref do ID, os dados da entidade que queremos atualizar
+        // Atualizamos chamando o metodo que copia dos dados do DTO pra ENTIDADE
+        copyDtoToEntity(entity, dto);
+
+        // Salvando no repositorio a entidade com os novos dados que atualizamos
+        entity = repository.save(entity);
+
+        // Instanciamos e Retornamos um ProductDTO passando os dados da entidade que atualizamos
         return new ProductDTO(entity);
     }
 
