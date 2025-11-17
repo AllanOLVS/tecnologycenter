@@ -3,10 +3,16 @@ package com.ecommerce.tecnologycenter.services;
 import com.ecommerce.tecnologycenter.dto.ProductDTO;
 import com.ecommerce.tecnologycenter.entities.Product;
 import com.ecommerce.tecnologycenter.repositories.ProductRepository;
+import com.ecommerce.tecnologycenter.services.exceptions.DatabaseException;
+import com.ecommerce.tecnologycenter.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -36,7 +42,9 @@ public class ProductService {
 
         //Com intuido de nn precisar passar todos os dados como parametro no construtor, fiz um novo construtor no ProductDTO
         //Que recebe um objeto de uma vez so pega e clona todos os dados do produto pro produtoDTO
-        Product product = repository.findById(id).get();
+
+        //OrElseThrow = Ele tenta acessar o objeto que esta sendo passado, caso não encontre, lança a exceção
+        Product product = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
         return new ProductDTO(product);
     }
 
@@ -73,23 +81,43 @@ public class ProductService {
 
     @Transactional
     public ProductDTO update(Long id, ProductDTO dto){
-        // Objeto esta monitorado pela JPA
-        // Instanciando um produto com a referencia do ID
-        Product entity = repository.getReferenceById(id);
-        // Pegamos, pela ref do ID, os dados da entidade que queremos atualizar
-        // Atualizamos chamando o metodo que copia dos dados do DTO pra ENTIDADE
-        copyDtoToEntity(entity, dto);
+        // Try pra tratar exessão na hora de atualizar dados de um produto
+        // Ja que pra atualizar tem que buscar o produto, quando ele não for encontrado ja que não existe, da o erro de
+        // RECURSO NÃO ENCONTRADO
+        // Como o HANDLER esta pronto pra essa exceprion, ela ja utiliza aquele metodo
+        try {
 
-        // Salvando no repositorio a entidade com os novos dados que atualizamos
-        entity = repository.save(entity);
+            // Objeto esta monitorado pela JPA
+            // Instanciando um produto com a referencia do ID
+            Product entity = repository.getReferenceById(id);
+            // Pegamos, pela ref do ID, os dados da entidade que queremos atualizar
+            // Atualizamos chamando o metodo que copia dos dados do DTO pra ENTIDADE
+            copyDtoToEntity(entity, dto);
 
-        // Instanciamos e Retornamos um ProductDTO passando os dados da entidade que atualizamos
-        return new ProductDTO(entity);
+            // Salvando no repositorio a entidade com os novos dados que atualizamos
+            entity = repository.save(entity);
+
+            // Instanciamos e Retornamos um ProductDTO passando os dados da entidade que atualizamos
+            return new ProductDTO(entity);
+
+        } catch (EntityNotFoundException e){
+            throw new ResourceNotFoundException("Resource not found");
+        }
     }
 
-    @Transactional
+    // Propagation = Este parametro faz com que a TRANSAÇÃO seja executada somente se ESTE metodo estiver no contexto
+    //de outra transação
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id){
-        repository.deleteById(id);
+        try {
+
+            repository.deleteById(id);
+
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException("Resource not found");
+        } catch (DataIntegrityViolationException e){
+            throw new DatabaseException("Fail of referential integrity");
+        }
     }
 
 
