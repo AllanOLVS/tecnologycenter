@@ -67,7 +67,16 @@ public class ProductController {
 
         // Retorna resposta OK, com o corpo do DTO
         return ResponseEntity.ok(dto);
+    }
 
+    @DeleteMapping(value = "/{id}")
+    // ResponseEntity com < VOID > é como se o corpo da resposta fosse vazio
+    public ResponseEntity<Void> delete(@PathVariable Long id){
+        // Chama o metodo do service que vai deletar com base no id que veio no http
+        service.delete(id);
+        // Quando da CERTO, foi deletado com sucesso, mas a resposta não tem corpo, o codigo é 204, por isso usar o noContent.
+        // Buid é pra instanciar o response
+        return ResponseEntity.noContent().build();
     }
 
 }
