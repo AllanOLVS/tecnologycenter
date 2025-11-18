@@ -1,14 +1,27 @@
 package com.ecommerce.tecnologycenter.dto;
 
 import com.ecommerce.tecnologycenter.entities.Product;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 // Responsavel por carregar os dados basicos do produto
 // Não deve ter nada de JPA no DTO
 public class ProductDTO {
 
     private Long id;
+    // Validação referente ao tamanho
+    @Size(min = 3, max = 80, message = "Nome precisa ter entre 3 e 80 caracteres")
+    // Verifica se o campo não esta vazio, tambem não permite que seja colocado varios espaços em branco
+    // Message = Aparece pro usuario quando o campo não esta atendendo aos requisitos
+    @NotBlank(message = "Campo requerido")
     private String name;
+    @Size(min = 10, message = "Descrição precisa ter no minimo 10 caracteres")
+    @NotBlank(message = "Campo requerido")
     private String description;
+    // Valida o campo preço pra que ele seja positivo
+    @Positive(message = "O preço deve ter um valor positivo")
     private Double price;
     private String imgUrl;
 

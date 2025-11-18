@@ -2,6 +2,7 @@ package com.ecommerce.tecnologycenter.controllers;
 
 import com.ecommerce.tecnologycenter.dto.ProductDTO;
 import com.ecommerce.tecnologycenter.services.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,7 +47,7 @@ public class ProductController {
     @PostMapping
     // RequestBudy = Faz com que o corpo da requisição que foi enviado pelo front, entre no parametro e instancia um DTO correspondente
     // ResponseEntity = Utilizado pra ter controle sobre as respostas HTTP
-    public ResponseEntity<ProductDTO> insert(@RequestBody ProductDTO dto){
+    public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductDTO dto){
         // Insert vai inserir no banco de dados
         dto = service.insert(dto);
         // Fazendo isso estamos criando uma URI
@@ -60,7 +61,7 @@ public class ProductController {
     // Os parametros:
     // PathVariable = É semelhante ao metodo de BUSCAR POR ID, pra que o id da requisição seja usado como parametro do metodo
     // RequestBodu = É o corpo da requisição
-    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @RequestBody ProductDTO dto){
+    public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO dto){
 
         //Chama o metodo do service que se comunica com o REPOSITORY e atualiza os dados
         dto = service.update(id, dto);
